@@ -7,7 +7,10 @@
   <meta name="author" content="SU">
   
   <meta name="description" content="title: frp穿透内网连接家里电脑
-如题">
+frp是什么frp 是一个可用于内网穿透的高性能的反向代理应用…
+github及中文文档
+需求家里电脑(windows)（本机）无公网ip，拥有一台有公网ip的Linux服务器。在外需要远程连接家里电脑。
+需求分析win10支持远程连接，使用3389端口。可">
   
   
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
@@ -125,7 +128,32 @@
 
 					<div class="article-content">
 						<p>title: frp穿透内网连接家里电脑</p>
-<h1 id="如题"><a href="#如题" class="headerlink" title="如题"></a>如题</h1>
+<h1 id="frp是什么"><a href="#frp是什么" class="headerlink" title="frp是什么"></a>frp是什么</h1><p>frp 是一个可用于内网穿透的高性能的反向代理应用…</p>
+<p><a href="https://github.com/fatedier/frp/blob/master/README_zh.md" target="_blank" rel="noopener">github及中文文档</a></p>
+<h1 id="需求"><a href="#需求" class="headerlink" title="需求"></a>需求</h1><p>家里电脑(windows)（本机）无公网ip，拥有一台有公网ip的Linux服务器。在外需要远程连接家里电脑。</p>
+<h1 id="需求分析"><a href="#需求分析" class="headerlink" title="需求分析"></a>需求分析</h1><p>win10支持远程连接，使用3389端口。可使用frp将服务器的3389端口映射到本机的3389端口，然后可以直接通过服务器的IP和端口连接本机。</p>
+<h1 id="服务器配置"><a href="#服务器配置" class="headerlink" title="服务器配置"></a>服务器配置</h1><h2 id="frp的安装及启动"><a href="#frp的安装及启动" class="headerlink" title="frp的安装及启动"></a>frp的安装及启动</h2><p>服务器系统版本为Centos7，在查看系统内核后选择amd64版进行下载</p>
+<h3 id="下载版本的选择"><a href="#下载版本的选择" class="headerlink" title="下载版本的选择"></a>下载版本的选择</h3><figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">case</span> $(uname -m) <span class="keyword">in</span></span><br><span class="line">    i386)   <span class="built_in">echo</span> <span class="string">"386"</span> ;;</span><br><span class="line">    i686)   <span class="built_in">echo</span> <span class="string">"386"</span> ;;</span><br><span class="line">    x86_64) <span class="built_in">echo</span> <span class="string">"amd64"</span> ;;</span><br><span class="line">    arm)    dpkg --<span class="built_in">print</span>-architecture | grep -q <span class="string">"arm64"</span> &amp;&amp; <span class="built_in">echo</span> <span class="string">"arm64"</span> || <span class="built_in">echo</span> <span class="string">"arm"</span> ;;</span><br><span class="line"><span class="keyword">esac</span></span><br></pre></td></tr></table></figure>
+<h3 id="下载-amp-使用"><a href="#下载-amp-使用" class="headerlink" title="下载&amp;使用"></a>下载&amp;使用</h3><figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta">#</span><span class="bash"> 下载</span></span><br><span class="line">wget https://github.com/fatedier/frp/releases/download/v0.24.1/frp_0.24.1_linux_amd64.tar.gz</span><br><span class="line"></span><br><span class="line"><span class="meta">#</span><span class="bash"> 解压</span></span><br><span class="line">tar -zxvf frp_0.24.1_linux_amd64.tar.gz</span><br><span class="line"></span><br><span class="line">cd frp_0.24.1_linux_amd64</span><br><span class="line"><span class="meta">#</span><span class="bash"> 修改配置文件</span></span><br><span class="line">frps.ini即frp在server(s)端的配置文件。</span><br><span class="line">vim frps.ini</span><br><span class="line"><span class="meta">#</span><span class="bash"> 编辑完成后启动frps服务</span></span><br><span class="line">./frps -c frps.ini</span><br></pre></td></tr></table></figure>
+<p>frps.ini:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">[common]</span><br><span class="line">bind_port = 3000</span><br><span class="line">token = 123</span><br></pre></td></tr></table></figure>
+<h1 id="客户端-本机-配置"><a href="#客户端-本机-配置" class="headerlink" title="客户端(本机)配置"></a>客户端(本机)配置</h1><h2 id="下载-amp-安装-amp-配置"><a href="#下载-amp-安装-amp-配置" class="headerlink" title="下载&amp;安装&amp;配置"></a>下载&amp;安装&amp;配置</h2><p>本机为windows，直接下载windows版解压即可。</p>
+<p>更改frpc.ini：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line">[common]</span><br><span class="line">server_addr = 服务器ip</span><br><span class="line">server_port = 3000</span><br><span class="line">token = 123</span><br><span class="line"></span><br><span class="line">[rdp]</span><br><span class="line">type = tcp</span><br><span class="line">local_ip = 127.0.0.1</span><br><span class="line">local_port = 3389</span><br><span class="line">remote_port = 3389</span><br></pre></td></tr></table></figure>
+<p>其中frpc.ini中server_port对应frps.ini中bind_port，token相互对应。</p>
+<p>local_port为远程连接端口，remote_port为服务器要使用的端口。若3389被占用，也可采用其他端口。</p>
+<h2 id="启动"><a href="#启动" class="headerlink" title="启动"></a>启动</h2><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./frpc -c ./frpc.ini</span><br></pre></td></tr></table></figure>
+<h2 id="配置远程连接"><a href="#配置远程连接" class="headerlink" title="配置远程连接"></a>配置远程连接</h2><p>步骤： 此电脑-&gt;右键-&gt;属性-&gt;远程设置，将远程协助和<a href="https://www.baidu.com/s?wd=%E8%BF%9C%E7%A8%8B%E6%A1%8C%E9%9D%A2&amp;tn=24004469_oem_dg&amp;rsv_dl=gh_pl_sl_csd" target="_blank" rel="noopener">远程桌面</a>中的两个允许远程的选项打上勾。</p>
+<p>具体可参考其他作者所写：</p>
+<p><a href="https://support.microsoft.com/zh-cn/help/4028379/windows-10-how-to-use-remote-desktop" target="_blank" rel="noopener">https://support.microsoft.com/zh-cn/help/4028379/windows-10-how-to-use-remote-desktop</a></p>
+<p><a href="https://blog.csdn.net/chenyuxin32/article/details/53738691" target="_blank" rel="noopener">https://blog.csdn.net/chenyuxin32/article/details/53738691</a></p>
+<h2 id="远程连接使用"><a href="#远程连接使用" class="headerlink" title="远程连接使用"></a>远程连接使用</h2><p>使用其他电脑打开远程连接(win + r，输入mstsc确定)</p>
+<p>填入ip（服务器ip）密码等信息连接即可。</p>
+<p>用户名及密码同本机登录所用账号密码。</p>
+<h2 id="配置开机自启动-使用任务计划"><a href="#配置开机自启动-使用任务计划" class="headerlink" title="配置开机自启动(使用任务计划)"></a>配置开机自启动(使用任务计划)</h2><p>使用小娜搜索[任务计划]，然后打开任务计划</p>
+<p>创建任务-&gt;填写名称-&gt;常规(选择”不管用户是否登录都要运行”)-&gt;触发器-&gt;新建-&gt;启动时-&gt;确定-&gt;操作-&gt;新建-&gt;程序或脚本选择frpc.exe所在位置-&gt;添加参数为<code>-c D:\frp\frpc.ini</code>,根据你的路径来填-&gt;确定-&gt;设置(自己看需更改)-&gt;确定。</p>
+<p>然后重启看能否远程连接。</p>
+
 					</div>
 
 			  <!-- about -->
